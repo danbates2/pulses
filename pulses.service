@@ -1,0 +1,14 @@
+[Unit]
+Description=Pulses
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python -u pulses.py
+WorkingDirectory=/home/pi/usefulscripts
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
