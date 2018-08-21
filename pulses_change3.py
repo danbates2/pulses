@@ -38,12 +38,7 @@ see http://openenergymonitor.org/emon/node/1732#comment-27749 re gas pulses
 """
 __author__ = 'Paul Burnell (pb66)'
 
-try:
-    import RPi.GPIO as GPIO
-    rpi = True
-except:
-    rpi = False
-    print('RPi.GPIO not installed')
+import RPi.GPIO as GPIO
 import time
 import socket
 
@@ -59,35 +54,31 @@ lastsend = 0
 host = "localhost" #emonbase1"
 port = 50012
 pulse_pin1 = 21
-pulse_pin2 = 15
+
 
 pulse_id = {1:0,2:0}
 
 
 def eventHandler1(channel):
-    processpulse(1,GPIO.input(channel))
+    processpulse(1,1)
     print("event1")
-
-
-def eventHandler2(channel):
-    processpulse(2,GPIO.input(channel))    
-    print("event2")
 
 
 def processpulse(channel,status):
     global pulse_id
-    global frame
     global lastsend
+    #global frame
     if status: #GPIO.input(channel):
         pulse_id[channel] += 1
         print("Channel "+ str(channel) + "  on : " + str(pulse_id[channel]))
+    else:
+        print("Channel "+ str(channel) + " off : " + str(pulse_id[channel]))
     t = time.time()
     f = ' '.join((str(t), str(nodeid), str(pulse_id[1]), str(pulse_id[2])))
     if t > (lastsend + interval):
         lastsend = t
         print f
         send(f)
-    main()
 
 def send(f):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -102,10 +93,11 @@ def main():
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(pulse_pin1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(pulse_pin2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.wait_for_edge(pulse_pin1, GPIO.RISING)
-        eventHandler1(pulse_pin1)
+        GPIO.add_event_detect(pulse_pin1, GPIO.RISING, callback=eventHandler1, bouncetime=bounce)
+        #GPIO.wait_for_edge(pulse_pin1, GPIO.RISING)
+        #eventHandler1(pulse_pin1)
         #GPIO.add_event_detect(pulse_pin1, GPIO.BOTH, callback=eventHandler1, bouncetime=bounce)
-        #GPIO.add_event_detect(pulse_pin2, GPIO.BOTH, callback=eventHandler2, bouncetime=bounce)
+        GPIO.add_event_detect(pulse_pin2, GPIO.BOTH, callback=eventHandler2, bouncetime=bounce)
 
     while True:  # CTRL+C to break - requires graceful exit
         try:
@@ -113,9 +105,9 @@ def main():
                 continue
             else:
                 processpulse()
-#                time.sleep(0.3)
         except KeyboardInterrupt:
             GPIO.cleanup()       # clean up GPIO on CTRL+C exit
+        time.sleep(0.001)
 
 
 if __name__ == "__main__":
