@@ -75,12 +75,13 @@ def eventHandler2(channel):
 def processpulse(channel,status):
     global pulse_id
     global lastsend
-    #global frame
+    global frame
     if status: #GPIO.input(channel):
         pulse_id[channel] += 1
         print("Channel "+ str(channel) + "  on : " + str(pulse_id[channel]))
     else:
         print("Channel "+ str(channel) + " off : " + str(pulse_id[channel]))
+        
     t = time.time()
     f = ' '.join((str(t), str(nodeid), str(pulse_id[1]), str(pulse_id[2])))
     if t > (lastsend + interval):
