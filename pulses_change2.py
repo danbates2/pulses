@@ -97,10 +97,10 @@ def send(f):
 
 
 def main():
-#    GPIO.setup(pulse_pin2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     if rpi:
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(pulse_pin1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(pulse_pin2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.wait_for_edge(pulse_pin1, GPIO.RISING)
         eventHandler1(pulse_pin1)
         #GPIO.add_event_detect(pulse_pin1, GPIO.BOTH, callback=eventHandler1, bouncetime=bounce)
