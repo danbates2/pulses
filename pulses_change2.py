@@ -81,9 +81,6 @@ def processpulse(channel,status):
     if status: #GPIO.input(channel):
         pulse_id[channel] += 1
         print("Channel "+ str(channel) + "  on : " + str(pulse_id[channel]))
-    else:
-        print("Channel "+ str(channel) + " off : " + str(pulse_id[channel]))
-
     t = time.time()
     f = ' '.join((str(t), str(nodeid), str(pulse_id[1]), str(pulse_id[2])))
     if t > (lastsend + interval):
@@ -100,11 +97,11 @@ def send(f):
 
 
 def main():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pulse_pin1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(pulse_pin2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+#    GPIO.setup(pulse_pin2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     if rpi:
-        GPIO.wait_for_edge(pulse_pin1, GPIO.BOTH)
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(pulse_pin1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.wait_for_edge(pulse_pin1, GPIO.RISING)
         eventHandler1(pulse_pin1)
         #GPIO.add_event_detect(pulse_pin1, GPIO.BOTH, callback=eventHandler1, bouncetime=bounce)
         #GPIO.add_event_detect(pulse_pin2, GPIO.BOTH, callback=eventHandler2, bouncetime=bounce)
