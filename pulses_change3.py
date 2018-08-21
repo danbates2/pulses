@@ -65,9 +65,12 @@ pulse_id = {1:0,2:0}
 
 
 def eventHandler1(channel):
-    processpulse(1,1)
+    processpulse(1,GPIO.input(channel))
     print("event1")
 
+def eventHandler2(channel):
+    processpulse(2,GPIO.input(channel))    
+    print("event2")
 
 def processpulse(channel,status):
     global pulse_id
