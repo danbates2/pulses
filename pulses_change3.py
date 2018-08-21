@@ -38,7 +38,12 @@ see http://openenergymonitor.org/emon/node/1732#comment-27749 re gas pulses
 """
 __author__ = 'Paul Burnell (pb66)'
 
-import RPi.GPIO as GPIO
+try:
+    import RPi.GPIO as GPIO
+    rpi = True
+except:
+    rpi = False
+    print('RPi.GPIO not installed')
 import time
 import socket
 
