@@ -104,7 +104,7 @@ def main():
     if rpi:
         GPIO.setmode(GPIO.BOARD)
         GPIO.wait_for_edge(pulse_pin1, GPIO.BOTH)
-        eventHandler1()
+        eventHandler1(pulse_pin1)
 #        GPIO.add_event_detect(pulse_pin1, GPIO.BOTH, callback=eventHandler1, bouncetime=bounce)
 #        GPIO.add_event_detect(pulse_pin2, GPIO.BOTH, callback=eventHandler2, bouncetime=bounce)
 
