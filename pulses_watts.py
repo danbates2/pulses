@@ -49,8 +49,8 @@ import socket
 # eg if 100 pulses is 1m3, ie 0.01m3 each then emonHub should use scale = 0.01 and unit = m3
 # Therefore "pulse_id" becomes an accumulating "total used" and should follow the meter reading
 
-nodeid = 19
-nodeid_w = 19
+nodeid = 18
+nodeid_w = 17
 valueid = 1
 bounce = 1
 interval = 5
