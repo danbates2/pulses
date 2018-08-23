@@ -56,7 +56,7 @@ interval = 5
 lastsend = 0
 host = "localhost" #emonbase1"
 port = 50012
-pulse_pin1 = 21
+pulse_pin1 = 35
 pulse_pin2 = 15
 
 pulse_id = {1:0,2:0}
