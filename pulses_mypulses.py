@@ -78,7 +78,7 @@ def processpulse(channel,status):
         pulse_id[channel] += 1
         print("Channel "+ str(channel) + "  on : " + str(pulse_id[channel]))
     else:
-       print("Channel "+ str(channel) + " off : " + str(pulse_id[channel]))
+        print("Channel "+ str(channel) + " off : " + str(pulse_id[channel]))
 
     t = time.time()
     f = ' '.join((str(t), str(nodeid), str(pulse_id[1]), str(pulse_id[2])))
@@ -95,24 +95,18 @@ def send(f):
     s.send(f)
     s.close()
 
-def main():
-    if rpi:
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(pulse_pin1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(pulse_pin1, GPIO.BOTH, callback=eventHandler1, bouncetime=bounce)
-        GPIO.setup(pulse_pin2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(pulse_pin2, GPIO.BOTH, callback=eventHandler2, bouncetime=bounce)
 
-    while True:  # CTRL+C to break - requires graceful exit
-        try:
-            if rpi:
-                continue
-            else:
-                processpulse()
-#                time.sleep(0.3)
-        except KeyboardInterrupt:
-            GPIO.cleanup()       # clean up GPIO on CTRL+C exit
+if rpi:
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(pulse_pin1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.add_event_detect(pulse_pin1, GPIO.BOTH, callback=eventHandler1, bouncetime=bounce)
+    GPIO.setup(pulse_pin2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.add_event_detect(pulse_pin2, GPIO.BOTH, callback=eventHandler2, bouncetime=bounce)
 
-if __name__ == "__main__":
-        main()
 
+while True:  # CTRL+C to break - requires graceful exit
+    try:
+        time.sleep(1)
+    except KeyboardInterrupt:
+        GPIO.cleanup()       # clean up GPIO on CTRL+C exit
+        pass
