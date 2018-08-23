@@ -41,12 +41,7 @@ see http://openenergymonitor.org/emon/node/1732#comment-27749 re gas pulses
 __author__ = 'Paul Burnell (pb66)'
 # modified by Daniel Bates 2018
 
-try:
-    import RPi.GPIO as GPIO
-    rpi = True
-except:
-    rpi = False
-    print('RPi.GPIO not installed')
+import RPi.GPIO as GPIO
 import time
 import socket
 
@@ -54,7 +49,7 @@ import socket
 # eg if 100 pulses is 1m3, ie 0.01m3 each then emonHub should use scale = 0.01 and unit = m3
 # Therefore "pulse_id" becomes an accumulating "total used" and should follow the meter reading
 
-nodeid = 18
+nodeid = "18"
 valueid = 1
 bounce = 1
 interval = 5
@@ -65,24 +60,38 @@ pulse_pin1 = 21
 pulse_pin2 = 15
 
 pulse_id = {1:0,2:0}
+watts_id = {3:0,4:0}
+
+previousIntervalTime1 = 0
+previousIntervalTime2 = 0
+###
+pulses_per_kWh = 500.0 # on Elster meter expressed as imp/kWh
+const_calc1 = 3600.0 / pulses_per_kWh # for example 500 imp/kWh results in a 7.2s interval at 1kW
+const_calc2 = 1000 * const_calc1 # Watts per 1s
+###
+intervalToPowerConstant = int(const_calc2)
+#print str(intervalToPowerConstant)
 
 def eventHandler1(channel):
-    processpulse(1,GPIO.input(channel))
+    global eventTime1
+    eventTime1 = time.time()
+    processpulse(1,1)
+    print "event1"
 def eventHandler2(channel):
-    processpulse(2,GPIO.input(channel))
+    global eventTime2
+    eventTime2 = time.time()
+    processpulse(2,1)
+    print "event2"
 
-
-#    print("event")
 
 def processpulse(channel,status):
     global pulse_id
     global frame
     global lastsend
-    if status: #GPIO.input(channel):
+    if status:
         pulse_id[channel] += 1
         print("Channel "+ str(channel) + "  on : " + str(pulse_id[channel]))
-    else:
-        print("Channel "+ str(channel) + " off : " + str(pulse_id[channel]))
+        timing_to_watts(channel)
 
     t = time.time()
     f = ' '.join((str(t), str(nodeid), str(pulse_id[1]), str(pulse_id[2])))
@@ -100,12 +109,44 @@ def send(f):
     s.close()
 
 
-if rpi:
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pulse_pin1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.add_event_detect(pulse_pin1, GPIO.BOTH, callback=eventHandler1, bouncetime=bounce)
-    GPIO.setup(pulse_pin2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.add_event_detect(pulse_pin2, GPIO.BOTH, callback=eventHandler2, bouncetime=bounce)
+def timing_to_watts(channel):
+    global previousIntervalTime1
+    global previousIntervalTime2
+    global intervalToPowerConstant
+    
+    interval1 = eventTime1 - previousIntervalTime1
+    print "interval1: " + str(interval1)
+    interval2 = eventTime2 - previousIntervalTime2
+    print "interval2: " + str(interval2)
+
+    watts1 = float(intervalToPowerConstant) / float(interval1)
+    print "watts1: " + str(watts)
+    watts2 = float(intervalToPowerConstant) / float(interval2)
+    print "watts2: " + str(watts)
+
+    watts_id[1] = watts1
+    watts_id[2] = watts2
+
+    previousIntervalTime1 = eventTime1
+    previousIntervalTime2 = eventTime2
+
+    t2 = time.time()
+    fw = ' '.join((str(t2), str(nodeid), str(watts_id[1]), str(watts_id[2])))
+    print fw
+    send(fw)
+
+def send_watts(
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((host, port))
+    fw = fw + '\r\n'
+    s.send(fw)
+    s.close()
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(pulse_pin1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.add_event_detect(pulse_pin1, GPIO.RISING, callback=eventHandler1, bouncetime=bounce)
+GPIO.setup(pulse_pin2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.add_event_detect(pulse_pin2, GPIO.RISING, callback=eventHandler2, bouncetime=bounce)
 
 
 try: # CTRL+C to break - requires graceful exit
@@ -116,4 +157,3 @@ except KeyboardInterrupt:
     exit()
 
 GPIO.cleanup()
-
