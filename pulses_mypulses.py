@@ -112,4 +112,6 @@ while True:  # CTRL+C to break - requires graceful exit
         time.sleep(1)
     except KeyboardInterrupt:
         GPIO.cleanup()       # clean up GPIO on CTRL+C exit
-        pass
+        exit()
+
+GPIO.cleanup()
