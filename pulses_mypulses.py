@@ -25,6 +25,7 @@ Add the following interfacer to emonhub.conf
                 port_nb = 50012
         [[[runtimesettings]]]
                 timestamped = True
+                pubchannels = ToEmonCMS,
 
 and if needed open the port in the firewall
         sudo ufw allow 50012
@@ -33,6 +34,8 @@ and if needed open the port in the firewall
 
 
 see http://openenergymonitor.org/emon/node/1732#comment-27749 re gas pulses
+
+
 
 """
 __author__ = 'Paul Burnell (pb66)'
