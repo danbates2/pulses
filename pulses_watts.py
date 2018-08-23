@@ -61,7 +61,7 @@ pulse_pin1 = 21
 pulse_pin2 = 15
 
 pulse_id = {1:0,2:0}
-watts_id = {3:0,4:0}
+watts_id = {1:0,2:0}
 
 previousIntervalTime1 = 0
 previousIntervalTime2 = 0
@@ -92,10 +92,23 @@ def processpulse(channel,status):
     if status:
         pulse_id[channel] += 1
         print("Channel "+ str(channel) + "  on : " + str(pulse_id[channel]))
-        timing_to_watts(channel)
+
+        # calculate watts
+        global previousIntervalTime1
+        global intervalToPowerConstant
+
+        interval1 = eventTime1 - previousIntervalTime1
+        print "interval1: " + str(interval1)
+      
+        watts1 = float(intervalToPowerConstant) / float(interval1)
+        print "watts1: " + str(watts1)
+      
+        watts_id[1] = watts1
+      
+        previousIntervalTime1 = eventTime1
 
     t = time.time()
-    f = ' '.join((str(t), str(nodeid), str(pulse_id[1]), str(pulse_id[2])))
+    f = ' '.join((str(t), str(nodeid), str(pulse_id[1]), str(pulse_id[2]), str(watts_id[1])))
     if t > (lastsend + interval):
         lastsend = t
         print f
@@ -109,40 +122,6 @@ def send(f):
     s.send(f)
     s.close()
 
-
-def timing_to_watts(channel):
-    global previousIntervalTime1
-    global previousIntervalTime2
-    global intervalToPowerConstant
-
-    interval1 = eventTime1 - previousIntervalTime1
-    print "interval1: " + str(interval1)
-    #interval2 = eventTime2 - previousIntervalTime2
-    #print "interval2: " + str(interval2)
-
-    watts1 = float(intervalToPowerConstant) / float(interval1)
-    print "watts1: " + str(watts1)
-    #watts2 = float(intervalToPowerConstant) / float(interval2)
-    #print "watts2: " + str(watts2)
-
-    watts_id[1] = watts1
-    #watts_id[2] = watts2
-
-    previousIntervalTime1 = eventTime1
-    #previousIntervalTime2 = eventTime2
-
-    tw = time.time()
-    #fw = ' '.join((str(tw), str(nodeid), str(watts_id[1]), str(watts_id[2])))
-    fw = ' '.join((str(tw), str(nodeid_w), str(watts_id[1])))
-    print fw
-    send(fw)
-
-def send_watts(fw):
-    sw = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sw.connect((host, port))
-    fw = fw + '\r\n'
-    sw.send(fw)
-    sw.close()
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(pulse_pin1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
