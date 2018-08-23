@@ -107,11 +107,12 @@ if rpi:
     GPIO.add_event_detect(pulse_pin2, GPIO.BOTH, callback=eventHandler2, bouncetime=bounce)
 
 
-while True:  # CTRL+C to break - requires graceful exit
-    try:
-        time.sleep(1)
-    except KeyboardInterrupt:
-        GPIO.cleanup()       # clean up GPIO on CTRL+C exit
-        exit()
+try: # CTRL+C to break - requires graceful exit
+    while True:
+        time.sleep(5) # the value doesn't matter.
+except KeyboardInterrupt:
+    GPIO.cleanup() # clean up GPIO on CTRL+C exit
+    exit()
 
 GPIO.cleanup()
+
