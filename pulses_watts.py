@@ -49,7 +49,8 @@ import socket
 # eg if 100 pulses is 1m3, ie 0.01m3 each then emonHub should use scale = 0.01 and unit = m3
 # Therefore "pulse_id" becomes an accumulating "total used" and should follow the meter reading
 
-nodeid = "18"
+nodeid = 19
+nodeid_w = 19
 valueid = 1
 bounce = 1
 interval = 5
@@ -132,7 +133,7 @@ def timing_to_watts(channel):
 
     tw = time.time()
     #fw = ' '.join((str(tw), str(nodeid), str(watts_id[1]), str(watts_id[2])))
-    fw = ' '.join((str(tw), str(nodeid), str(watts_id[1])))
+    fw = ' '.join((str(tw), str(nodeid_w), str(watts_id[1])))
     print fw
     send(fw)
 
@@ -148,7 +149,6 @@ GPIO.setup(pulse_pin1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.add_event_detect(pulse_pin1, GPIO.RISING, callback=eventHandler1, bouncetime=bounce)
 GPIO.setup(pulse_pin2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.add_event_detect(pulse_pin2, GPIO.RISING, callback=eventHandler2, bouncetime=bounce)
-
 
 try: # CTRL+C to break - requires graceful exit
     while True:
